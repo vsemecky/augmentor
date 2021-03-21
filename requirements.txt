@@ -1,0 +1,5 @@
+ImageHash==4.2.0
+Pillow==7.0.0
+progressbar2==3.53.1
+termcolor==1.1.0
+
