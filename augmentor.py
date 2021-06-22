@@ -58,12 +58,13 @@ def process_image(file: str):
         return
 
     # Skip duplicity image
-    image_hash = imagehash.average_hash(image_original, hash_size=hash_size)
-    if image_hash in hashes:
-        print(file, colored("DUPLICATE ", 'red'))
-        stats['images_duplicated'] += 1
-        return
-    hashes.append(image_hash)
+    if config.dedupe_input:
+        image_hash = imagehash.average_hash(image_original, hash_size=hash_size)
+        if image_hash in hashes:
+            print(file, colored("DUPLICATE ", 'red'))
+            stats['images_duplicated'] += 1
+            return
+        hashes.append(image_hash)
 
     stem = Path(file).stem
     window_max = get_max_window_size(image_original, config.width / config.height)
@@ -161,6 +162,7 @@ parser.add_argument("--recursive", help="Parse 'input_dir' recursively including
 parser.add_argument("--limit", help="Process only 'limit' randomly selected samples from 'input-dir'", type=int)
 parser.add_argument("--dry", help="Dry run. Only show config and calculate expected images count after augmentation.", action='store_true')
 parser.add_argument("--threads", help="Threads count. (default: Number physical CPU cores)", type=int, default=6)
+parser.add_argument("--dedupe-input", help="Deduplicate images on input", action='store_true')
 
 # Output image format
 parser.add_argument('--width', type=int, default=1024, help='Final output image width (default: %(default)s)')
