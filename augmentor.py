@@ -68,27 +68,24 @@ def process_image(file: str):
 
     stem = Path(file).stem
     window_max = get_max_window_size(image_original, config.width / config.height)
-    # print(file, "max window", window_max, "ratio", window_max[0] / window_max[1])
 
     variants = {}  # {filename : PIL.Image}
     for n in range(1, config.crops + 1):
-        outfile = "{}/{}-{}.{}".format(config.output_dir, stem, n, config.format)
         image = image_original.copy()
 
         # Autocontrast with `config.autocontrast` probability
         if random.random() < config.autocontrast:
             cutoff = random.uniform(config.cutoff_min, config.cutoff_max)
             image = ImageOps.autocontrast(image, cutoff=cutoff)
+        else:
+            cutoff = False
 
         # Random window
         scale_min = config.width / window_max[0]
         scale = random.uniform(max(scale_min, config.scale_min), config.scale_max)  # Random scale
         window_width = round(scale * window_max[0])
         window_height = round(scale * window_max[1])
-        # print(n, ") scale", scale, "window_max", window_max, "scal_min", scale_min, "config.scale_min", config.scale_min, "image.size", image.size, "window", (window_width, window_height))
-        # print("delta-left", image.width - window_width)
         left = random.randint(0, image.width - window_width)
-        # print("delta-top", image.height - window_height)
         top = random.randint(0, image.height - window_height)
         crop_box = (left, top, left + window_width, top + window_height)
 
@@ -97,6 +94,7 @@ def process_image(file: str):
 
         # centering = (random.uniform(0, 1), random.uniform(0, 1))
         # image_cropped = ImageOps.fit(image, size=(config.width, config.height), method=Image.ANTIALIAS, bleed=0, centering=centering)
+        outfile = f"{config.output_dir}/{stem}-{n}--ac{cutoff:.2f}.{config.format}"
         variants[outfile] = image_cropped
 
     # Save varinats (skip duplicities)
@@ -155,9 +153,9 @@ def run():
 # Parse CLI arguments
 parser = argparse.ArgumentParser()
 
-# Input/output
-parser.add_argument('-i', '--input-dir', type=str, default='./', help='Directory path to the inputs folder. (default: %(default)s)')
-parser.add_argument('-o', '--output-dir', type=str, default='./augmentor-output/', help='Directory path to the outputs folder. (default: %(default)s)')
+# General options
+parser.add_argument('-i', '--input-dir', type=str, default='./', help='Input directory with images (default: %(default)s)')
+parser.add_argument('-o', '--output-dir', type=str, default='./augmentor-output/', help='Output directory. It will be created if it does not exist. (default: %(default)s)')
 parser.add_argument("--recursive", help="Parse 'input_dir' recursively including all subfolders", action='store_true')
 parser.add_argument("--limit", help="Process only 'limit' randomly selected samples from 'input-dir'", type=int)
 parser.add_argument("--dry", help="Dry run. Only show config and calculate expected images count after augmentation.", action='store_true')
