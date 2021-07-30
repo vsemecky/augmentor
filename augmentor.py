@@ -21,7 +21,7 @@ hash_size = 15
 
 
 def get_max_window_size(image: Image, ratio: float):
-    """ Returns maximum size (width, height) of inscribed rectangle with speciic aspect ratio """
+    """ Returns maximum size (width, height) of inscribed rectangle with specific aspect ratio """
     width, height = image.size
     current_ratio = width / height
     if ratio == current_ratio:
@@ -43,6 +43,7 @@ def print_config():
 
 
 def process_image(file: str):
+    """ Augmentation process of single image """
     global stats
 
     # Load image
