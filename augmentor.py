@@ -95,7 +95,10 @@ def process_image(file: str):
 
         # centering = (random.uniform(0, 1), random.uniform(0, 1))
         # image_cropped = ImageOps.fit(image, size=(config.width, config.height), method=Image.ANTIALIAS, bleed=0, centering=centering)
-        outfile = f"{config.output_dir}/{stem}-{n}--ac{cutoff:.2f}.{config.format}"
+        if config.randomize:
+            outfile = f"{config.output_dir}/{n}-{stem}--ac{cutoff:.2f}.{config.format}"
+        else:
+            outfile = f"{config.output_dir}/{stem}-{n}--ac{cutoff:.2f}.{config.format}"
         variants[outfile] = image_cropped
 
     # Save varinats (skip duplicities)
@@ -168,6 +171,7 @@ parser.add_argument('--width', type=int, default=1024, help='Final output image 
 parser.add_argument('--height', type=int, default=1024, help='Final output image height (default: %(default)s)')
 parser.add_argument("--format", help="Ouput image format", type=str, default='jpg', choices=['jpg', 'png'])
 parser.add_argument("--jpg-quality", help="JPEG quality (default: %(default)s)", type=int, default=100)
+parser.add_argument("--randomize", help="Random image preffix to randomize order", action='store_true')
 
 # @todo Implement --size
 # @todo Implement --png-quality
